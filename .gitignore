@@ -2,3 +2,4 @@ loganalyzer/
 __pycache__/
 *.pyc
 .env
+notes.md
