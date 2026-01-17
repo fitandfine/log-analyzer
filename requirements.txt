@@ -1,4 +1,5 @@
-uvicorn
-fastapi
-pydantic
-pytest
+uvicorn # Takes incoming web traffic and hands it over to FastAPI to process.
+fastapi # The web framework we'll be using to build our API.
+pydantic # For data validation and settings management using Python type annotations. May or may not be useful in this project but good to have, just in case.
+pytest # For testing our application.
+python-multipart #FastAPI uses it under the hood whenever you use UploadFile or File(...). Without this, our /upload endpoint will crash.
