@@ -53,7 +53,7 @@ async def upload_log(
    if not file.filename or not file.filename.lower().endswith(ALLOWED_EXTENSIONS):
        raise HTTPException(
            status_code=status.HTTP_400_BAD_REQUEST, 
-           detail=f"Invalid file type. Please upload{ALLOWED_EXTENSIONS} files only."
+           detail=f"Invalid file type. Please upload {ALLOWED_EXTENSIONS} files only."
            )
    # Step 2: Verify File Size put processing logic as well here to make sure we close the file is always properly closed
    try:
