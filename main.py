@@ -55,7 +55,7 @@ async def upload_log(
            status_code=status.HTTP_400_BAD_REQUEST, 
            detail=f"Invalid file type. Please upload {ALLOWED_EXTENSIONS} files only."
            )
-   # Step 2: Verify File Size put processing logic as well here to make sure we close the file is always properly closed
+   # Step 2: Verify File Size put processing logic as well here to make sure the file is always properly closed
    actual_size = 0
    try:
         # Browsers usually send file size in request headers
