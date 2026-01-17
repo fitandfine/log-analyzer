@@ -8,7 +8,7 @@ app = FastAPI(
     version="0.1.0"
 )
 @app.get("/", tags=["Health Check"]) # tags is used for grouping endpoints in the documentation used by Swagger UI
-def health_check() -> Dict[str, str]:
+def health_check() -> Dict[str, str]: #The Return Type Hint. It promises that the function will output a Dictionary with String keys and values of string type.
     """
     root path to check if the API is running.
     Purpose:
@@ -24,5 +24,9 @@ def health_check() -> Dict[str, str]:
 
 
 @app.post("/upload", tags=["Log Upload"])
-async def upload_log(file : UploadFile = File(...)) -> Dict[str,Any]:
-    return {"filename": file.filename, "content_type": file.content_type}
+# use async def for better performance when handling file uploads, as it allows other requests to be processed while waiting for file I/O operations to complete.
+async def upload_log(file : UploadFile = File(...)) -> Dict[str,Any]: # Even though File() also works, always use ... for required fields.
+   if not file.filename.endswith((".txt",".log",".logfile",".pdf")):
+       raise HTTPException(status_code=400, detail="Invalid file type. Only plain text files are allowed.")
+   else:
+       return {"filename": file.filename, "content_type": file.content_type}
