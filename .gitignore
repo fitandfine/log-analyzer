@@ -1,1 +1,4 @@
 loganalyzer/
+__pycache__/
+*.pyc
+.env
