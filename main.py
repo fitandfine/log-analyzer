@@ -9,7 +9,7 @@ from fastapi import (
         Request)
 
 MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB, because computers use bytes not megabytes.
-ALLOWED_EXTENSIONS = (".txt", ".log", ".logfile", ".data")
+ALLOWED_EXTENSIONS = (".txt", ".log", ".logfile", ".data")  # Tuple of allowed file extensions for log files.
 
 app = FastAPI(
     title ="Log Analyzer API",
@@ -73,7 +73,7 @@ async def upload_log(
        
         #First  seek to the end of the file to get its size
        
-        await file.file.seek(0,2)
+        file.file.seek(0,2)
        
         '''
         here, in file.seek(0,2) , the second argument '2' is used to indicate that the seek operation 
@@ -82,9 +82,9 @@ async def upload_log(
         The first argument '0' specifies the offset from that position, which means no additional offset is applied.
         '''
         
-        actual_size = await file.file.tell() # tell() method returns the current position of the file pointer, which is equivalent to the size of the file after seeking to the end.
+        actual_size = file.file.tell() # tell() method returns the current position of the file pointer, which is equivalent to the size of the file after seeking to the end.
 
-        await file.file.seek(0)
+        file.file.seek(0)
         '''
         BEST PRACTICE: Reset pointer to the beginning for subsequent operations. 
         In this case, we can do the file curser reset after verifying the size as well, just before parsing.
@@ -100,7 +100,7 @@ async def upload_log(
     # Step 3: Parse the File for Errors and Warnings - Streaming Line-by-Line
 
    finally:
-        await file.file.close() # Step 4: Cleanup - Ensure the file is closed after processing to free up resources.
+        file.file.close() # Step 4: Cleanup - Ensure the file is closed after processing to free up resources.
     
    return{ 
 
