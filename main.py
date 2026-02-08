@@ -57,6 +57,12 @@ async def upload_log(
            )
    # Step 2: Verify File Size put processing logic as well here to make sure the file is always properly closed
    actual_size = 0
+   # Initialize result dictionary
+   log_report = {
+       "errors":[],
+       "warnings":[]
+   }
+   
    try:
         # Browsers usually send file size in request headers
         content_length = request.headers.get("content-length")
@@ -98,12 +104,46 @@ async def upload_log(
                 detail="File too large (max 20MB)"
                 )
     # Step 3: Parse the File for Errors and Warnings - Streaming Line-by-Line
-
+    # We use file.file (the underlying file object) to read the file content. This allows us to process large files without loading them entirely into memory, which is crucial for performance and scalability.
+        for line_bytes in file.file:
+            # Decode bytes to string for pattern matching.
+            line = line_bytes.decode("utf-8")
+            upper_line= line.upper() # Convert to uppercase for case-insensitive matching.
+            if "ERROR" in upper_line or "CRITICAL" in upper_line:
+                log_report["errors"].append(line.strip())
+            elif "WARNING" in upper_line:
+                log_report["warnings"].append(line.strip())
+   except UnicodeDecodeError:
+       # Handle cases where the file isn't valid text (e.g., binary files with .log extension).
+       # This is a common edge case, and we want to provide a clear error message to the user.
+       raise HTTPException(
+           status_code=status.HTTP_400_BAD_REQUEST,
+           detail="File contains invalid characters. Please upload a standard text log file"
+       )
+   except Exception as e:
+       # General catch-all for unexpected errors during file processing. This ensures that any unforeseen issues are gracefully handled and communicated back to the client, rather than causing the server to crash or return a generic error.
+       raise HTTPException(
+           status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+           detail=f"An error occurred while processing the file: {str(e)}"
+       )
    finally:
+        
         file.file.close() # Step 4: Cleanup - Ensure the file is closed after processing to free up resources.
     
-   return{ 
+   
+   
 
-        "filename":file.filename,
-        "Size_in_Bytes": actual_size
-        }
+   
+   
+   # Return the final organized data
+   return { 
+        "info": {
+            "filename": file.filename,
+            "size_bytes": actual_size,
+        },
+        "statistics": {
+            "error_count": len(log_report["errors"]),
+            "warning_count": len(log_report["warnings"])
+        },
+        "results": log_report
+    }
